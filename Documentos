@@ -1,0 +1,148 @@
+/*import javax.swing.*;*/import java.awt.*;
+import java.awt.event.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+public class LojaDeDoces1 {
+
+    public static void main(String[] args) {
+        // Criando a janela principal com BorderLayout
+        JFrame frame = new JFrame("Loja de Doces");
+        frame.setSize(400, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout(10, 10));  // margem entre regiões
+
+        // Painel central para os produtos
+        JPanel painelProdutos = new JPanel(new GridLayout(3, 1, 10, 10));
+
+        // Painel inferior para o botão "Pedir" e o total
+        JPanel painelInferior = new JPanel(new BorderLayout());
+
+        // Preços
+        double precoBrigadeiro = 10.0;
+        double precoCookie = 15.0;
+        double precoPudim = 50.0;
+
+        // Labels de quantidade
+        JLabel labelQtdBrigadeiro = new JLabel("Qtd: 0");
+        JLabel labelQtdCookie = new JLabel("Qtd: 0");
+        JLabel labelQtdPudim = new JLabel("Qtd: 0");
+
+        // Label de total
+        JLabel labelTotal = new JLabel("Total: R$0,00");
+        labelTotal.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTotal.setFont(new Font("Arial", Font.BOLD, 16));
+
+        // Criando handler
+        Handler handler = new Handler(labelTotal, precoBrigadeiro, precoCookie, precoPudim,
+                                      labelQtdBrigadeiro, labelQtdCookie, labelQtdPudim);
+
+        // Criando os painéis individuais para cada doce
+        painelProdutos.add(criarPainelDoce("Brigadeiro - R$10,00", "C:\\Users\\Aluno\\Downloads\\9d5590f8a919cae9633142d617dea805.png", labelQtdBrigadeiro, handler));
+        painelProdutos.add(criarPainelDoce("Cookie - R$15,00", "C:\\Users\\Aluno\\Downloads\\OIP.jpg", labelQtdCookie, handler));
+        painelProdutos.add(criarPainelDoce("Pudim - R$50,00", "C:\\Users\\Aluno\\Downloads\\f53d329f8b6137ec55ea73ca1975cbb3_pudim-iogurte-receitas-nestle.jpg", labelQtdPudim, handler));
+
+        // Botão Pedir
+        JButton btnPedir = new JButton("Pedir");
+        btnPedir.setPreferredSize(new Dimension(100, 40));
+        btnPedir.addActionListener(e -> {
+            double total = handler.calcularTotal();
+            labelTotal.setText(String.format("Total: R$%.2f", total));
+        });
+
+        painelInferior.add(labelTotal, BorderLayout.CENTER);
+        painelInferior.add(btnPedir, BorderLayout.SOUTH);
+
+        // Adicionando à janela
+        frame.add(painelProdutos, BorderLayout.CENTER);
+        frame.add(painelInferior, BorderLayout.SOUTH);
+
+        frame.setLocationRelativeTo(null); // centraliza a janela
+        frame.setVisible(true);
+    }
+
+    private static JPanel criarPainelDoce(String nomeBotao, String caminhoImagem, JLabel labelQtd, ActionListener handler) {
+        JPanel painel = new JPanel(new BorderLayout(10, 10));
+
+        // Botão
+        JButton botao = new JButton(nomeBotao);
+        botao.addActionListener(handler);
+
+        // Imagem
+        try {
+            ImageIcon icon = new ImageIcon(caminhoImagem);
+            Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+            JLabel labelImagem = new JLabel(new ImageIcon(img));
+            labelImagem.setHorizontalAlignment(SwingConstants.CENTER);
+            painel.add(labelImagem, BorderLayout.WEST);
+        } catch (Exception e) {
+            System.out.println("Erro ao carregar a imagem: " + caminhoImagem);
+        }
+
+        // Painel para botão + quantidade
+        JPanel painelDireita = new JPanel(new GridLayout(2, 1, 5, 5));
+        painelDireita.add(botao);
+        painelDireita.add(labelQtd);
+
+        painel.add(painelDireita, BorderLayout.CENTER);
+
+        return painel;
+    }
+}
+
+// Classe Handler para gerenciar eventos
+class Handler implements ActionListener {
+    private final double precoBrigadeiro;
+    private final double precoCookie;
+    private final double precoPudim;
+
+    private int quantidadeBrigadeiro = 0;
+    private int quantidadeCookie = 0;
+    private int quantidadePudim = 0;
+
+    private final JLabel labelQtdBrigadeiro;
+    private final JLabel labelQtdCookie;
+    private final JLabel labelQtdPudim;
+
+    public Handler(JLabel labelTotal, double precoBrigadeiro, double precoCookie, double precoPudim,
+                   JLabel labelQtdBrigadeiro, JLabel labelQtdCookie, JLabel labelQtdPudim) {
+        this.precoBrigadeiro = precoBrigadeiro;
+        this.precoCookie = precoCookie;
+        this.precoPudim = precoPudim;
+        this.labelQtdBrigadeiro = labelQtdBrigadeiro;
+        this.labelQtdCookie = labelQtdCookie;
+        this.labelQtdPudim = labelQtdPudim;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String comando = e.getActionCommand();
+
+        switch (comando) {
+            case "Brigadeiro - R$10,00" -> {
+                quantidadeBrigadeiro++;
+                labelQtdBrigadeiro.setText("Qtd: " + quantidadeBrigadeiro);
+            }
+            case "Cookie - R$15,00" -> {
+                quantidadeCookie++;
+                labelQtdCookie.setText("Qtd: " + quantidadeCookie);
+            }
+            case "Pudim - R$50,00" -> {
+                quantidadePudim++;
+                labelQtdPudim.setText("Qtd: " + quantidadePudim);
+            }
+        }
+    }
+
+    public double calcularTotal() {
+        return (quantidadeBrigadeiro * precoBrigadeiro) +
+               (quantidadeCookie * precoCookie) +
+               (quantidadePudim * precoPudim);
+    }
+}
+ 
+
